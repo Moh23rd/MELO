@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Editors and IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build and test output
+dist/
+build/
+coverage/
+.cache/
+
+# Caches
+.eslintcache
+.stylelintcache
