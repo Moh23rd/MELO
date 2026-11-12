@@ -3,14 +3,15 @@
 A local-first music player for the web — works on desktop and mobile, and your
 music never leaves your device.
 
-> **Status:** early. The repository is set up, and the player itself is in
-> progress.
-
 ## What it is
 
 Melo plays audio files straight from your own device. You point it at a folder
 or pick files, and the browser reads and plays them locally. There is no upload,
 no account, and no tracking.
+
+Melo is a single-page app that also installs as a PWA and keeps its app shell
+available offline through a service worker. Playback itself always reads from
+your device.
 
 ## Goals
 
@@ -32,20 +33,33 @@ npx serve .
 python3 -m http.server 3000
 ```
 
-Some browser APIs used for reading a folder (File System Access) require
-`localhost` or HTTPS.
+Open <http://localhost:3000>. Some browser APIs used for reading a folder
+(File System Access) require `localhost` or HTTPS.
+
+## Deployment
+
+Every push to `main` deploys the static files to GitHub Pages through
+`.github/workflows/pages.yml`:
+
+**https://moh23rd.github.io/Melo/**
+
+The app uses relative paths, so it works both at the repository root and under
+the `/Melo/` Pages path.
 
 ## Project layout
 
 ```text
 .
-├── .github/          # CI, issue and pull request templates
-├── CONTRIBUTING.md   # how to work on the project
-├── LICENSE           # GPL-3.0
+├── index.html            # the app: markup, styles and logic
+├── manifest.webmanifest  # installable PWA metadata
+├── sw.js                 # service worker (offline app shell)
+├── icon-*.png            # app icons
+├── apple-touch-icon.png  # iOS home screen icon
+├── .github/              # CI, Pages deployment, issue and PR templates
+├── CONTRIBUTING.md       # how to work on the project
+├── LICENSE               # GPL-3.0
 └── README.md
 ```
-
-The app files will live at the repository root once they are added.
 
 ## Browser support
 
