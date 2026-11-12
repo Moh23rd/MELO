@@ -652,7 +652,7 @@ button,a,.row,.tr,.sq,.srow,.dc,.gc{touch-action:manipulation}
 /* pages arrive one block after another: done with one-shot Web Animations in the motion helpers below, so a refresh never replays them */
 /* the player: artwork lands with a soft pop, the rest settles in after it */
 #full .pl-art{animation:moArt .6s var(--mo-out) both}
-#full.plenter .pl-art{animation:moArt2 .7s var(--mo-spring) both}
+#full.plenter .pl-art{animation:moArt .6s var(--mo-out) both,moArt2 .7s var(--mo-spring) both}
 #full.plenter .pl-info{animation:moIn .55s var(--mo-out) .06s both}
 #full.plenter .pl-prog{animation:moIn .55s var(--mo-out) .12s both}
 #full.plenter .pl-tr{animation:moIn .55s var(--mo-out) .18s both}
@@ -1195,6 +1195,7 @@ if($('#full').classList.contains('open')){$('#full').classList.remove('open');re
 if(det){popDet();return true}
 if(libv){goLibBack();return true}
 if(tab==='settings'&&setPage&&!spMD()){setPage=null;spAnim='b';render();$('#main').scrollTop=0;return true}
+if(tab==='settings'){selectTab(setBackTo());return true}
 const ae=document.activeElement;if(ae&&ae.matches&&ae.matches('input,textarea')){ae.blur();return true}if(tab==='search'){exitSearch();return true}if(tab!=='home'){tab='home';render();$('#main').scrollTop=0;return true}
 return false}
 let guard=false,exitT=0;const pushGuard=()=>{try{history.pushState({melo:1},'');guard=true}catch(e){}};
@@ -1521,7 +1522,7 @@ let rzT=0;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{c
 const AL={pp:'Play or pause',nx:'Next song',pv:'Previous song',lyr:'Lyrics',queue:'Queue',outp:'Audio output',qual:'Audio quality',back:'Back',dedit:'Edit',profile:'Profile',rview:'Change view',fs:'Full screen',shufall:'Shuffle',playall:'Play',close:'Close player'};
 function a11y(){document.querySelectorAll('[data-a]:not([aria-label]),[data-m]:not([aria-label]),[data-fav]:not([aria-label])').forEach(b=>{const k=b.dataset.a;if(AL[k])b.setAttribute('aria-label',AL[k]);else if(b.dataset.m)b.setAttribute('aria-label','More options');else if(b.dataset.fav)b.setAttribute('aria-label','Favorite')})}
 function diag(){const o={melo:VER,time:new Date().toISOString(),ua:navigator.userAgent,screen:innerWidth+'x'+innerHeight+'@'+devicePixelRatio,storage:db?'IndexedDB ok':'unavailable',songs:songs.length,history:LOG.length,fullscreen:!!document.fullscreenElement,secure:isSecureContext,welcome:window.__wlWhy,firstLaunch:FIRST_RUN,settings:S,errors:ERR};return JSON.stringify(o,null,2)}
-const CHANGES=['#New','New app icon','A new floating navigation bar: Home, Discover and Library with a separate search button, made of plain blur. It shrinks to a circle while you scroll down and the mini player slides in beside it; scroll up or tap the circle to bring it back. One row in landscape, a sidebar on desktop','Android-style stretch overscroll: pull past the top or bottom of a page, album, artist or the queue and it stretches, then springs back (and a fast flick into an edge gives a small stretch), using the same physics as Android 13 and newer','#Changed','Settings now opens from your profile picture on Home, so the bottom bar is just Home, Discover and Library','Album, artist and playlist pages are filled with the artwork colour: a deep shade in dark mode and a soft tint in light mode, from a more accurate dominant colour','#Fixed','Opening the player no longer blinks','Adaptive colour no longer flashes dark when it first switches on','Full screen no longer shows a false "not available" message','The installed app keeps portrait the right way up when the phone is held upside down'];
+const CHANGES=['#New','New app icon','A new floating navigation bar: Home, Discover and Library with a separate search button, made of plain blur. It shrinks to a circle while you scroll down and the mini player slides in beside it; scroll up or tap the circle to bring it back. One row in landscape, a sidebar on desktop','Android-style stretch overscroll: pull past the top or bottom of a page, album, artist or the queue and it stretches, then springs back (and a fast flick into an edge gives a small stretch), using the same physics as Android 13 and newer','#Changed','Settings now opens from your profile picture on Home, so the bottom bar is just Home, Discover and Library','Album, artist and playlist pages are filled with the artwork colour: a deep shade in dark mode and a soft tint in light mode, from a more accurate dominant colour','#Fixed','The artwork no longer flashes about a second after you open the player','Settings now has a back button (it returns to the tab you came from), and Android back does the same','Opening the player no longer blinks','Adaptive colour no longer flashes dark when it first switches on','Full screen no longer shows a false "not available" message','The installed app keeps portrait the right way up when the phone is held upside down'];
 document.addEventListener('click',e=>{const a=e.target.closest('[data-a]');if(!a)return;const k=a.dataset.a;
 if(k=='about'){e.stopPropagation();mcard(`${svg('songs',72).replace('<svg ','<svg class="qi" ')}<h3>Melo ${VER}</h3><p>Pre-release. Your music stays on this device.</p><p style="margin-top:-4px;font-weight:600">Built with love by MOH23rd</p><button class="pb" data-act="new">What's new</button><button class="pb w" data-act="ok">OK</button>`,{new:()=>mcard(`<h3>What's in this build</h3>${CHANGES.map(x=>x[0]=='#'?`<div class=\"ir\" style=\"font-weight:700;margin-top:10px\"><span>${x.slice(1)}</span></div>`:`<div class=\"ir\"><span>${x}</span></div>`).join('')}<button class="pb w" data-act="ok" style="margin-top:14px">OK</button>`)})}
 else if(k=='diag'){e.stopPropagation();copyText(diag())}},true);
@@ -1716,7 +1717,7 @@ const sd=document.createElement('aside');sd.id='side';document.body.appendChild(
 function buildSide(){const it=(a,i,n,c='')=>`<button class="sd-i ${c}" ${a}>${NAVI[i]?navSvg(i,19):svg(i,19)}<span>${n}</span></button>`;
 $('#side').innerHTML=`<div class="sd-top">${it('data-t="search"','search','Search')}${it('data-t="home"','home','Home')}${it('data-t="discover"','discover','Discover')}</div><div class="sd-sec" data-t="library">Library</div><div class="sd-lib">${[['favs','heartg','Favorite songs'],['playlists','plsg','Playlists'],['artists','mic','Artists'],['albums','disc','Albums'],['songs','songs','Songs'],['history','clockg','Recently played'],['stats','barsf','Listening stats']].map(([k,i,n])=>it(`data-open="${k}"`,i,n)).join('')}</div><div class="sd-pf"><button class="sd-p" data-a="profile">${K.pimg?`<span class="sd-av" style="background-image:url(${K.pimg})"></span>`:`<span class="sd-av">${svg('profile',18)}</span>`}<b>${esc(S.name||'You')}</b></button><button class="sd-g" data-t="settings" aria-label="Settings">${svg('setf',20)}</button></div>`}
 function syncBar(){const b=$('#bot'),sb=$('#sbtn');b.dataset.tab=tab;document.documentElement.dataset.tab=tab;buildSide();document.querySelectorAll('#side .sd-i,#side .sd-sec').forEach(x=>{const t=x.dataset.t,o=x.dataset.open;x.classList.toggle('on',t?(t==tab&&!(t=='library')):(tab=='library'&&libv==o))});document.querySelector('#side .sd-sec').classList.toggle('on',tab=='library'&&!libv);sb.classList.toggle('on',tab=='search');sb.setAttribute('aria-current',tab=='search'?'page':'false');placeBar()}
-function selectTab(k){if(k=='search'&&tab!='search')prevTab=tab;libFrom=null;hap('tick');const b=$('#bot');
+function selectTab(k){if(k=='search'&&tab!='search')prevTab=tab;if(k==='settings'&&tab!=='settings')setFrom=tab;libFrom=null;hap('tick');const b=$('#bot');
 if(b.classList.contains('min')&&k===tab&&tab!='search'&&!det){setMin(false);return}
 if(k===tab){if(det){detStack=[];det=null;renderDet();return}if(libv){libv=null;render();animMain('pop');return}if(k=='search'){const q=$('#q2')||$('#q');if(q)q.focus();return}$('#main').scrollTo({top:0,behavior:'smooth'});return}
 TS[tab]={libv,sy:$('#main').scrollTop,det,stack:[...detStack],dy:$('#det').scrollTop};if(det)det.sy=TS[tab].dy;
@@ -1856,7 +1857,10 @@ tabs.style.setProperty('--tbx',(min&&ix>=0?H/2-(4+ix*bw+bw/2):0)+'px');tabs.clas
 function setMin(v,force){const b=$('#bot');if(tab=='search'||tab=='settings'||document.documentElement.classList.contains('kb')||barMode()!=='col')v=false;
 if(v&&!force){const sc=det?$('#det'):$('#main');if(sc.scrollHeight-sc.clientHeight<260)return}
 if(b.classList.contains('min')===v)return;const n=Date.now();if(!force&&n-minT21<380)return;minT21=n;b.classList.toggle('min',v);placeBar()}
-document.addEventListener('click',e=>{const b=e.target.closest('#tb [data-t],#sbtn,#side [data-t]');if(!b)return;e.stopPropagation();selectTab(b.dataset.t)},true);
+let setFrom='home';
+const setBackTo=()=>setFrom&&setFrom!=='settings'&&setFrom!=='search'?setFrom:'home';
+const setBackName=()=>(TB2.find(t=>t[0]===setBackTo())||[0,'Home'])[1];
+document.addEventListener('click',e=>{const sb=e.target.closest('[data-setback]');if(sb){e.stopPropagation();selectTab(setBackTo());return}const b=e.target.closest('#tb [data-t],#sbtn,#side [data-t]');if(!b)return;e.stopPropagation();selectTab(b.dataset.t)},true);
 {const b=$('#bot'),mo=$('#mini');b.classList.add('nt');placeBar();if(mo)new MutationObserver(placeBar).observe(mo,{attributes:true,attributeFilter:['hidden']});
 {let rq=0;addEventListener('resize',()=>{b.classList.add('nt');cancelAnimationFrame(rq);rq=requestAnimationFrame(()=>{placeBar();requestAnimationFrame(()=>b.classList.remove('nt'))})})}addEventListener('orientationchange',()=>setTimeout(placeBar,120));
 requestAnimationFrame(()=>requestAnimationFrame(()=>{placeBar();b.classList.remove('nt')}))}
@@ -2036,8 +2040,9 @@ function spBody(){const P=spParse();if(spMD()){const g=P.groups.find(x=>x.key===
 function setHTML2(){const P=spParse(),md=spMD(),a=spAnim;spAnim='';spLastMD=md;
 if(!md&&setPage){const g=P.groups.find(x=>x.key===setPage);if(g)return `<div class="sbk"><button class="sbkb" data-sp="" aria-label="Back to Settings">${svg('back',20)}<span>Settings</span></button></div><h1 class="spt${a==='f'?' spf':a==='b'?' spb':''}">${g.title}</h1><div class="spin${a==='f'?' spf':a==='b'?' spb':''}">${spCards(g)}</div>`;setPage=null}
 const search=`<div class="ssb">${svg('search',18)}<input id="sq" type="search" placeholder="Search settings" autocomplete="off"></div>`;
-if(md){const g=P.groups.find(x=>x.key===spCur())||P.groups[0];return `<h1>Settings</h1><div class="smd"><div class="sml">${search}${P.prof.outerHTML}${spTop(P)}</div><div class="smr" id="sbody">${spDetail(P,g)}</div></div>`}
-return `<h1>Settings</h1>${search}<div id="sbody" class="${a==='b'?'spb':''}">${P.prof.outerHTML}${spTop(P)}</div>`}
+const bk=barMode()==='desk'?'':`<div class="sbk"><button class="sbkb" data-setback aria-label="Back to ${setBackName()}">${svg('back',20)}<span>${setBackName()}</span></button></div>`;
+if(md){const g=P.groups.find(x=>x.key===spCur())||P.groups[0];return `${bk}<h1>Settings</h1><div class="smd"><div class="sml">${search}${P.prof.outerHTML}${spTop(P)}</div><div class="smr" id="sbody">${spDetail(P,g)}</div></div>`}
+return `${bk}<h1>Settings</h1>${search}<div id="sbody" class="${a==='b'?'spb':''}">${P.prof.outerHTML}${spTop(P)}</div>`}
 function filterSet(q){const host=document.getElementById('sbody');if(!host)return;q=(q||'').trim().toLowerCase();if(!q){host.innerHTML=spBody();return}
 const P=spParse();let out='';P.groups.forEach(g=>{const n=[],rs=[];spSections(g).forEach(x=>x.rows.forEach(r=>{if(r.textContent.toLowerCase().includes(q))(x.t==='Reset'?rs:n).push(r)}));if(n.length)out+=spCard(g.title,n);if(rs.length)out+=spCard('Reset · '+g.title,rs,1)});
 host.innerHTML=out||'<div class="nores">No matches</div>'}
